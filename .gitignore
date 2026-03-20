@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Conda
+.conda/
+*.conda
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Dados (evitar subir arquivos grandes)
+data/raw/
+data/processed/
+
+# OS
+.DS_Store
+Thumbs.db
