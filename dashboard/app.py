@@ -15,7 +15,7 @@ df_final = carregar_dados()
 #Configuração  da pagina
 st.set_page_config(page_title="Dashboard Olist", layout="wide")
 
-# Barra Lateral (Sidebar) 
+# Barra Lateral  
 st.sidebar.title("Filtros do Projeto")
 data_filtro = st.sidebar.date_input("Selecione o Período")
 estado_filtro = st.sidebar.multiselect("Selecione o Estado", ["SP", "RJ", "MG", "Outros"])
