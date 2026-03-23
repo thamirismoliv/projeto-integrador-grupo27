@@ -2,14 +2,14 @@
 
 ## Tema do Projeto
 
-> **Tema:** Análise de desempenho de e-commerce e satisfação do cliente no Brasil
+**Tema:** Análise de desempenho de e-commerce e satisfação do cliente no Brasil
 
-> **Contexto:**
+**Contexto:**
 O crescimento do e-commerce no Brasil trouxe desafios relacionados à logística, prazos de entrega e experiência do cliente. Com múltiplos fatores influenciando a jornada de compra, torna-se essencial analisar dados para identificar padrões, gargalos e oportunidades de melhoria no processo.
 
 
-> **Objetivo da análise:**
- objetivo é analisar o desempenho das vendas, prazos de entrega e nível de satisfação dos clientes a partir dos dados do Olist. Busca-se identificar fatores que impactam a experiência de compra, gerar insights sobre eficiência logística e qualidade dos produtos, e apoiar a tomada de decisão baseada em dados.
+**Objetivo:**
+analisar o desempenho das vendas, prazos de entrega e nível de satisfação dos clientes a partir dos dados do Olist. Busca-se identificar fatores que impactam a experiência de compra, gerar insights sobre eficiência logística e qualidade dos produtos, e apoiar a tomada de decisão baseada em dados.
 
 ---
 
@@ -44,68 +44,120 @@ A base foi escolhida por ser rica, realista e multidimensional, permitindo explo
 
 ## Planejamento do Projeto
 
-### 🔹 Divisão de tarefas (provisório)
-
-| Integrante | Responsabilidades                     |
-| ---------- | ------------------------------------- |
-| Nome 1     | *[Ex: coleta e tratamento dos dados]* |
-| Nome 2     | *[Ex: análise exploratória]*          |
-| Nome 3     | *[Ex: modelagem e métricas]*          |
-| Nome 4     | *[Ex: dashboard e documentação]*      |
-
----
-
-### 🔹 Cronograma (provisório)
+### 🔹 Cronograma e divisão de tarefas
 
 | Etapa | Descrição                          | Responsável | Prazo    |
-| ----- | ---------------------------------- | ----------- | -------- |
-| 1     | Scrum Master & Documentação        | *[Nome]*    | *[Data]* |
-| 2     | Engenharia de Dados (Extração)     | *[Nome]*    | *[Data]* |
-| 3     | Engenharia de Dados (Limpeza)      | *[Nome]*    | *[Data]* |
-| 4     | Analista de Dados (KPIs)           | *[Nome]*    | *[Data]* |
-| 5     | Analista de Dados (Transformação)  | *[Nome]*    | *[Data]* |
-| 6     | Desenvolvedor Streamlit (Layout)   | *[Nome]*    | *[Data]* |
-| 7     | Desenvolvedor Streamlit (Gráficos) | *[Nome]*    | *[Data]* |
+|-------|------------------------------------|-------------|----------|
+| 1     | Scrum Master & Documentação        | Lucas       | Contínuo |
+| 2     | Engenharia de Dados (Extração)     | João        | Semana 1 |
+| 3     | Engenharia de Dados (Limpeza)      | Gustavo     | Semana 2 |
+| 4     | Analista de Dados (KPIs)           | Thamiris    | Semana 3 |
+| 5     | Analista de Dados (Transformação)  | Giovanna    | Semana 4 |
+| 6     | Desenvolvedor Streamlit (Layout)   | Diego       | Semana 5 |
+| 7     | Desenvolvedor Streamlit (Gráficos) | Ellen       | Semana 6 |
+| 8     | Revisão Final & Entrega do Projeto | Todos       | Semana 7 |
 
 ---
 
 ## Transformações Planejadas
 
-*[Listar as transformações que pretendem aplicar]*
+- **Extração de dados**
+  - Carregar tabelas principais do dataset Olist
+    - orders
+    - order_items
+    - order_payments
+    - order_reviews
+    - products
+    - customers
+    - geolocation
 
-Exemplos (apagar se não usar):
 
-* Limpeza de valores nulos
-* Normalização/padronização
-* Criação de variáveis derivadas
-* Agregações por período/categoria
+- **Limpeza de dados**
+  - Converter colunas de data para formato `datetime`
+  - Tratar pedidos com status:
+    - canceled
+    - unavailable
+  - Tratar valores nulos
+    - review_score
+    - order_delivered_customer_date
+    - product_category_name
+  - Remover registros duplicados
+
+
+- **Integração de dados (JOINs)**
+
+
+- **Criação de novas variáveis**
+
 
 ---
 
-## Visualizações e Métricas (Ideia Inicial do Dashboard)
+## Visualizações e Métricas
 
 ### 🔹 Visualizações planejadas
 
-*[Listar os gráficos desejados]*
+- **Visão geral (dashboard)**
+  - cards de métricas:
+    - faturamento total
+    - total de pedidos
+    - ticket médio
+    - nota média de avaliação
 
-Exemplos:
 
-* Gráfico de linhas — evolução temporal
-* Gráfico de barras — comparações por categoria
-* Heatmap — correlações
-* KPI cards
+- **Análise temporal**
+  - gráfico de linha
+    - vendas por mês
+
+
+- **Análise de produtos**
+  - gráfico de barras
+    - top 10 categorias mais vendidas
+
+
+- **Pagamentos**
+  - gráfico pizza ou donut
+    - distribuição dos métodos de pagamento
+
+
+- **Logística**
+  - histograma ou boxplot
+    - distribuição do tempo de entrega
+  - gráfico de barras
+    - prazo médio de entrega por estado
+
+
+- **Satisfação do cliente**
+  - histograma
+    - distribuição das avaliações
+  - scatter plot
+    - atraso na entrega vs avaliação
+
+
+- **Distribuição geográfica**
+  - mapa de calor
+    - concentração de pedidos por localização
 
 ### 🔹 Métricas principais
 
-*[Listar indicadores que pretendem apresentar]*
+- **Métricas de vendas**
+  - faturamento total
+  - número total de pedidos
+  - ticket médio
+  - vendas por categoria de produto
+  - vendas por região (estado)
 
-Exemplos:
 
-* Média
-* Mediana
-* Taxa de crescimento
-* Percentuais
-* Desvio padrão
+- **Métricas logísticas**
+  - prazo médio de entrega
+  - percentual de entregas atrasadas
+  - tempo médio de atraso
+  - prazo médio de entrega por estado
+
+
+- **Métricas de satisfação do cliente**
+  - nota média de avaliação
+  - distribuição das avaliações (1–5 estrelas)
+  - relação entre atraso de entrega e avaliação
 
 ---
 
