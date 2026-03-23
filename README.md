@@ -163,8 +163,6 @@ A base foi escolhida por ser rica, realista e multidimensional, permitindo explo
 
 ## Tecnologias
 
-Sugestão de estrutura:
-
 * Linguagem: **Python** <img src="https://raw.githubusercontent.com/bablubambal/All_logo_and_pictures/7c0ac2ceb9f9d24992ec393d11fa7337d2f92466/programming%20languages/python.svg" width="16">
 * Bibliotecas: **Pandas, NumPy, Matplotlib**
 * Visualização: **Streamlit**
