@@ -184,7 +184,43 @@ A base foi escolhida por ser rica, realista e multidimensional, permitindo explo
 
 ## Como Utilizar Esse Repositório
 
-*[Descrever o passo a passo de como utilizar esse repositório]*
+### Clonar este repositório
+
+~~~bash
+git clone https://github.com/thamirismoliv/projeto-integrador-grupo27
+cd projeto-integrador-grupo27
+~~~
+
+### Criar um ambiente virtual Python
+
+Criar um ambiente virtual para isolar as dependências do projeto.
+
+~~~bash
+python -m venv venv
+~~~
+
+### Ativar o ambiente virtual
+
+#### Linux / macOs
+
+~~~bash
+source venv/bin/activate
+~~~
+
+#### Windows
+
+~~~bash
+venv\Scripts\activate
+~~~
+
+### Instalar as dependências do projeto
+
+Todas as bibliotecas necessárias estão definidas no arquivo ```requirements.txt```.  
+Com o ambiente virtual ativado, instale as dependências:
+
+~~~bash
+pip install -r requirements.txt
+~~~
 
 ---
 
