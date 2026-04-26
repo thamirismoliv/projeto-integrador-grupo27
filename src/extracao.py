@@ -57,3 +57,5 @@ print()
 print("geolocation:")
 print(geolocation.isnull().sum())
 print()
+
+print("Etapa de extração concluída com sucesso!")
