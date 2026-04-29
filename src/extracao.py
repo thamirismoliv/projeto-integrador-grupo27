@@ -1,61 +1,74 @@
+from pathlib import Path
+import requests
 import pandas as pd
 
-orders = pd.read_csv("data/raw/olist_orders_dataset.csv")
-order_items = pd.read_csv("data/raw/olist_order_items_dataset.csv")
-order_payments = pd.read_csv("data/raw/olist_order_payments_dataset.csv")
-order_reviews = pd.read_csv("data/raw/olist_order_reviews_dataset.csv")
-products = pd.read_csv("data/raw/olist_products_dataset.csv")
-customers = pd.read_csv("data/raw/olist_customers_dataset.csv")
-geolocation = pd.read_csv("data/raw/olist_geolocation_dataset.csv")
+RAW_DIR = Path("data/raw")
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-print("Arquivos carregados com sucesso!\n")
+FILES = {
+    "olist_orders_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_orders_dataset.csv",
+    "olist_order_items_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_order_items_dataset.csv",
+    "olist_order_payments_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_order_payments_dataset.csv",
+    "olist_order_reviews_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_order_reviews_dataset.csv",
+    "olist_products_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_products_dataset.csv",
+    "olist_customers_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_customers_dataset.csv",
+    "olist_geolocation_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_geolocation_dataset.csv",
+}
 
-print("Dimensão das tabelas:")
-print("orders:", orders.shape)
-print("order_items:", order_items.shape)
-print("order_payments:", order_payments.shape)
-print("order_reviews:", order_reviews.shape)
-print("products:", products.shape)
-print("customers:", customers.shape)
-print("geolocation:", geolocation.shape)
+def baixar_arquivo(url, destino):
+    resposta = requests.get(url, timeout=120)
+    resposta.raise_for_status()
+    destino.write_bytes(resposta.content)
 
-print("\nColunas de cada tabela:\n")
-print("orders:", list(orders.columns))
-print("order_items:", list(order_items.columns))
-print("order_payments:", list(order_payments.columns))
-print("order_reviews:", list(order_reviews.columns))
-print("products:", list(products.columns))
-print("customers:", list(customers.columns))
-print("geolocation:", list(geolocation.columns))
+def baixar_bases():
+    print("Iniciando download das bases...\n")
 
-print("\nValores nulos por tabela:\n")
+    for nome_arquivo, url in FILES.items():
+        destino = RAW_DIR / nome_arquivo
 
-print("orders:")
-print(orders.isnull().sum())
-print()
+        if destino.exists():
+            print(f"{nome_arquivo} já existe. Pulando download.")
+            continue
 
-print("order_items:")
-print(order_items.isnull().sum())
-print()
+        print(f"Baixando {nome_arquivo}...")
+        baixar_arquivo(url, destino)
+        print(f"{nome_arquivo} baixado com sucesso.\n")
 
-print("order_payments:")
-print(order_payments.isnull().sum())
-print()
+def carregar_bases():
+    bases = {
+        "orders": pd.read_csv(RAW_DIR / "olist_orders_dataset.csv"),
+        "order_items": pd.read_csv(RAW_DIR / "olist_order_items_dataset.csv"),
+        "order_payments": pd.read_csv(RAW_DIR / "olist_order_payments_dataset.csv"),
+        "order_reviews": pd.read_csv(RAW_DIR / "olist_order_reviews_dataset.csv"),
+        "products": pd.read_csv(RAW_DIR / "olist_products_dataset.csv"),
+        "customers": pd.read_csv(RAW_DIR / "olist_customers_dataset.csv"),
+        "geolocation": pd.read_csv(RAW_DIR / "olist_geolocation_dataset.csv"),
+    }
+    return bases
 
-print("order_reviews:")
-print(order_reviews.isnull().sum())
-print()
+def exibir_resumo(bases):
+    print("\nArquivos carregados com sucesso!\n")
 
-print("products:")
-print(products.isnull().sum())
-print()
+    print("Dimensão das tabelas:")
+    for nome, df in bases.items():
+        print(f"{nome}: {df.shape}")
 
-print("customers:")
-print(customers.isnull().sum())
-print()
+    print("\nColunas de cada tabela:\n")
+    for nome, df in bases.items():
+        print(f"{nome}: {list(df.columns)}")
 
-print("geolocation:")
-print(geolocation.isnull().sum())
-print()
+    print("\nValores nulos por tabela:\n")
+    for nome, df in bases.items():
+        print(f"{nome}:")
+        print(df.isnull().sum())
+        print()
 
-print("Etapa de extração concluída com sucesso!")
+    print("Etapa de extração concluída com sucesso!")
+
+def main():
+    baixar_bases()
+    bases = carregar_bases()
+    exibir_resumo(bases)
+
+if __name__ == "__main__":
+    main()
