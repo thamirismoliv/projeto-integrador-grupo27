@@ -222,6 +222,19 @@ Com o ambiente virtual ativado, instale as dependências:
 pip install -r requirements.txt
 ~~~
 
+### Etapa de extração de dados
+
+Para realizar a extração de dados da internet utilizar um dos comandos abaixo:
+~~~bash
+python src/extracao.py
+~~~
+~~~bash
+python3 src/extracao.py
+~~~
+
+O script de extração irá criar a pasta ```data/raw``` e fará o download dos dados brutos.
+
+
 ---
 
 ## 📎 Observações
