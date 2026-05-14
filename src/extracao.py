@@ -1,38 +1,49 @@
 from pathlib import Path
+import io
+import zipfile
 import requests
 import pandas as pd
 
 RAW_DIR = Path("data/raw")
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-FILES = {
-    "olist_orders_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_orders_dataset.csv",
-    "olist_order_items_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_order_items_dataset.csv",
-    "olist_order_payments_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_order_payments_dataset.csv",
-    "olist_order_reviews_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_order_reviews_dataset.csv",
-    "olist_products_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_products_dataset.csv",
-    "olist_customers_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_customers_dataset.csv",
-    "olist_geolocation_dataset.csv": "https://raw.githubusercontent.com/olist/work-at-olist-data/master/datasets/olist_geolocation_dataset.csv",
-}
+URL = "https://www.kaggle.com/api/v1/datasets/download/olistbr/brazilian-ecommerce"
 
-def baixar_arquivo(url, destino):
-    resposta = requests.get(url, timeout=120)
-    resposta.raise_for_status()
-    destino.write_bytes(resposta.content)
+ARQUIVOS = [
+    "olist_orders_dataset.csv",
+    "olist_order_items_dataset.csv",
+    "olist_order_payments_dataset.csv",
+    "olist_order_reviews_dataset.csv",
+    "olist_products_dataset.csv",
+    "olist_customers_dataset.csv",
+    "olist_geolocation_dataset.csv",
+]
+
 
 def baixar_bases():
-    print("Iniciando download das bases...\n")
+    # Verifica se todos os arquivos já existem
+    if all((RAW_DIR / f).exists() for f in ARQUIVOS):
+        print("Todos os arquivos já existem. Pulando download.")
+        return
 
-    for nome_arquivo, url in FILES.items():
-        destino = RAW_DIR / nome_arquivo
+    print("Baixando dataset...\n")
+    resposta = requests.get(URL, timeout=300)
+    resposta.raise_for_status()
 
-        if destino.exists():
-            print(f"{nome_arquivo} já existe. Pulando download.")
-            continue
+    # Extrai apenas os arquivos desejados do zip
+    with zipfile.ZipFile(io.BytesIO(resposta.content)) as zf:
+        for arquivo in ARQUIVOS:
+            destino = RAW_DIR / arquivo
 
-        print(f"Baixando {nome_arquivo}...")
-        baixar_arquivo(url, destino)
-        print(f"{nome_arquivo} baixado com sucesso.\n")
+            if destino.exists():
+                print(f"{arquivo} já existe. Pulando.")
+                continue
+
+            print(f"Extraindo {arquivo}...")
+            destino.write_bytes(zf.read(arquivo))
+
+    print("\nDownload concluído.\n")
+
 
 def carregar_bases():
     bases = {
@@ -45,6 +56,7 @@ def carregar_bases():
         "geolocation": pd.read_csv(RAW_DIR / "olist_geolocation_dataset.csv"),
     }
     return bases
+
 
 def exibir_resumo(bases):
     print("\nArquivos carregados com sucesso!\n")
@@ -65,10 +77,12 @@ def exibir_resumo(bases):
 
     print("Etapa de extração concluída com sucesso!")
 
+
 def main():
     baixar_bases()
     bases = carregar_bases()
     exibir_resumo(bases)
+
 
 if __name__ == "__main__":
     main()
