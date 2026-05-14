@@ -222,17 +222,13 @@ Com o ambiente virtual ativado, instale as dependências:
 pip install -r requirements.txt
 ~~~
 
-### Etapa de extração de dados
+### Execução do projeto
 
-Para realizar a extração de dados da internet utilizar um dos comandos abaixo:
+A execução do projeto foi centralizadas em apenas um comando. O projeto inicializa e realiza todas as etapas usando o comando: 
 ~~~bash
-python src/extracao.py
-~~~
-~~~bash
-python3 src/extracao.py
+streamlit run app.py
 ~~~
 
-O script de extração irá criar a pasta ```data/raw``` e fará o download dos dados brutos.
 
 
 ---
