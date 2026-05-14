@@ -224,7 +224,7 @@ pip install -r requirements.txt
 
 ### Execução do projeto
 
-A execução do projeto foi centralizadas em apenas um comando. O projeto inicializa e realiza todas as etapas usando o comando: 
+A execução do projeto foi centralizada em apenas um comando. O dashboard inicializa e realiza todas as etapas usando o comando: 
 ~~~bash
 streamlit run app.py
 ~~~
