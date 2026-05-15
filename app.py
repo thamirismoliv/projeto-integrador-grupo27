@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import seaborn as sns
@@ -6,7 +7,6 @@ from src.extracao import baixar_bases
 from src.limpeza import limpar_arquivos
 from src.kpis import calcular_kpis
 from src.transformacao import transformar_dados
-
 
 @st.cache_data
 def carregar_dados():
@@ -17,134 +17,64 @@ def carregar_dados():
 
     return kpis_dict, df_tranformacao
 
-
-# Carga de dados
+# Carrega os dados
 kpis, df_final = carregar_dados()
-
-# Configuração  da pagina
+#configurações da pagina 
 st.set_page_config(page_title="Dashboard Olist", layout="wide")
 
-# Barra Lateral  
+# barra lateral 
 st.sidebar.title("Filtros do Projeto")
 data_filtro = st.sidebar.date_input("Selecione o Período")
 estado_filtro = st.sidebar.multiselect("Selecione o Estado", ["SP", "RJ", "MG", "Outros"])
 status_filtro = st.sidebar.selectbox("Status do pedido", ["Entregue", "Cancelado", "Todos"])
 
-# Titulo
+# cartoes de metricas
 st.title("📊 Análise de E-commerce (Olist)")
 st.markdown("---")
-
-# Cartoes de Metricas (topo)
-
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Faturamento Total", f"{kpis['faturamento_total']:.2f}")
-col2.metric("Total de pedidos", "0")
-col3.metric("Ticket Médio", "R$ 0,00")
-col4.metric("Satisfação Média", "0.0 ⭐")
+col1.metric("Faturamento Total", f"R$ {kpis['faturamento_total']:,.2f}")
+col2.metric("Total de pedidos", f"{kpis['total_pedidos']}")
+col3.metric("Ticket Médio", f"R$ {kpis['ticket_medio']:,.2f}")
+col4.metric("Satisfação Média", f"{kpis['nota_media']:.2f} ⭐")
 
 st.markdown("---")
 
-# Divisão em abas (Corpo Graficos)
-aba1, aba2, aba3 = st.tabs(["📈 Visão Geral", "🚚 Logística", "💳 Pagamentos"])
+# Gráfico 1: Vendas por Estado
+st.header("Vendas por Estado")
+fig1, ax1 = plt.subplots(figsize=(8, 4))
+sns.barplot(x=kpis['vendas_por_estado'].index, y=kpis['vendas_por_estado'].values, ax=ax1)
+ax1.set_title("Vendas por Estado")
+ax1.set_xlabel("Estado")
+ax1.set_ylabel("Total de pedidos")
+st.pyplot(fig1)
 
-with aba1:
-    st.title('Título do Gráfico de Linha')
-    st.header("Vendas ao longo do tempo")
-    
-    eixo_x = [1, 2, 3, 4, 5]
-    eixo_y = [10, 20, 15, 25, 30]
-    fig1, ax1 = plt.subplots(figsize=(10, 6))
-    ax1.plot(eixo_x, eixo_y, marker='o', linestyle='-', color='b', label='Tendência')
-    ax1.set_xlabel('Eixo X (Tempo/Categorias)')
-    ax1.set_ylabel('Eixo Y (Valores)')
-    ax1.legend()
-    ax1.grid(True)
-    st.pyplot(fig1)
-    
-    st.markdown("<p style='text-align: center;'>Grafico 1 temporal e categorias</p>", unsafe_allow_html=True)
+# Gráfico 2: Top 10 categorias
+st.header("Top 10 Categorias")
+fig2, ax2 = plt.subplots(figsize=(10, 5))
+sns.barplot(data=kpis['vendas_por_categoria'], x='total_vendas', y='categoria', ax=ax2)
+ax2.set_title("Top 10 Categorias")
+ax2.set_xlabel("Total de Vendas")
+ax2.set_ylabel("Categoria")
+st.pyplot(fig2)
 
-with aba2:
-    st.title('Distribuição Percentual')
-    st.header("Analise de Entrega")
-    
-    valores = [25, 35, 20, 20]
-    categorias = ['Acessórios', 'Roupas', 'Eletrônicos', 'Beleza']
-    fig2, ax2 = plt.subplots(figsize=(8, 8))
-    ax2.pie(valores, labels=categorias, autopct='%1.1f%%', startangle=140, wedgeprops={'width': 0.4})
-    st.pyplot(fig2)
-    
-    st.markdown("<p style='text-align: center;'>Grafico 2 calor e logisticas</p>", unsafe_allow_html=True)
+# Gráfico 3: Prazo médio por estado
+st.header("Prazo Médio de Entrega por Estado")
+fig3, ax3 = plt.subplots(figsize=(8, 4))
+sns.barplot(data=kpis['prazo_por_estado'], x='prazo_medio_dias', y='estado', ax=ax3)
+ax3.set_title("Prazo Médio de Entrega por Estado")
+ax3.set_xlabel("Prazo Médio (dias)")
+ax3.set_ylabel("Estado")
+st.pyplot(fig3)
 
-with aba3:
-    st.title('Comparativo de Categorias')
-    st.header("Métodos de Pagamento")
-    
-    fig3, ax3 = plt.subplots(figsize=(10, 6))
-    ax3.bar(categorias, valores, color='skyblue')
-    ax3.set_xlabel('Categorias')
-    ax3.set_ylabel('Valores')
-    st.pyplot(fig3)
-    
-    st.markdown("<p style='text-align: center;'>Grafico 3 distribuição de pagamentos</p>", unsafe_allow_html=True)
+# Gráfico 4: Distribuição de avaliações
+st.header("Distribuição de Avaliações")
+fig4, ax4 = plt.subplots(figsize=(6, 4))
+sns.barplot(x=kpis['distribuicao_notas'].index.astype(str), y=kpis['distribuicao_notas'].values, ax=ax4)
+ax4.set_title("Distribuição de Notas")
+ax4.set_xlabel("Nota")
+ax4.set_ylabel("Quantidade")
+st.pyplot(fig4)
 
-#Grafico 4
-# Definindo os dados usados no histograma e boxplot
-# Substitua por seus dados reais, por exemplo uma coluna do DataFrame
-dados = [12, 15, 14, 20, 18, 22, 17, 16, 19, 21, 25, 30, 28, 14, 13, 18, 20, 23, 19, 17]
-
-# Histograma
-plt.figure(figsize=(10, 5))
-sns.histplot(dados, kde=True, color='green')
-plt.title('Distribuição de Frequência (Histograma)')
-plt.show()
-
-# Boxplot
-plt.figure(figsize=(10, 5))
-sns.boxplot(x=dados, color='lightcoral')
-plt.title('Análise de Outliers (Boxplot)')
-plt.show()
-
-#Grafico 5
-# Definindo dados_matriz para o heatmap (correlação entre variáveis numéricas)
-# Usando tabela_final se disponível, senão dados de exemplo
-if 'tabela_final' in globals():
-    # Adicionando coluna dias_entrega_num se não existir
-    if 'dias_entrega_num' not in tabela_final.columns:
-        tabela_final['dias_entrega_num'] = (tabela_final['order_delivered_customer_date'] - 
-                                            tabela_final['order_purchase_timestamp']).dt.days
-    dados_matriz = tabela_final[['price', 'freight_value', 'valor_total', 'dias_entrega_num']].corr()
-else:
-    # Dados de exemplo se tabela_final não estiver definida
-    dados_matriz = pd.DataFrame({
-        'price': [1, 0.8, 0.9, 0.2],
-        'freight_value': [0.8, 1, 0.7, 0.3],
-        'valor_total': [0.9, 0.7, 1, 0.1],
-        'dias_entrega_num': [0.2, 0.3, 0.1, 1]
-    })
-
-plt.figure(figsize=(12, 8))
-sns.heatmap(dados_matriz, annot=True, cmap='coolwarm', fmt='.2f')
-plt.title('Mapa de Calor de Correlação')
-plt.show()
-
-#Grafico 6
-plt.figure(figsize=(10, 6))
-plt.scatter(eixo_x, eixo_y, alpha=0.5, c='purple')
-plt.title('Dispersão: Variável X vs Variável Y')
-plt.xlabel('Variável X')
-plt.ylabel('Variável Y')
-plt.show()
-
-#Grafico 7
-dados_matriz = [
-    [1, 0.5, 0.3],
-    [0.5, 1, 0.2],
-    [0.3, 0.2, 1]
-]
-sns.heatmap(dados_matriz, annot=True, cmap='coolwarm', fmt='.2f')
-
-plt.figure(figsize=(12, 8))
-# 'df.corr()' calcula a correlação automaticamente se usar Pandas
-sns.heatmap(dados_matriz, annot=True, cmap='coolwarm', fmt='.2f')
-plt.title('Mapa de Calor de Correlação')
-plt.show()
+# Mostra amostra dos dados transformados
+st.header("Amostra dos dados transformados")
+st.dataframe(df_final.head())
