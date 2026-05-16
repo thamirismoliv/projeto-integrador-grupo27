@@ -1,62 +1,87 @@
-import os
 import pandas as pd
+
+COLUNAS_DATA = [
+    "order_purchase_timestamp",
+    "order_approved_at",
+    "order_delivered_carrier_date",
+    "order_delivered_customer_date",
+    "order_estimated_delivery_date",
+    "shipping_limit_date",
+]
+
+DROPNA_SUBSET = {
+    "olist_orders_dataset.csv":          ["order_id", "customer_id"],
+    "olist_order_items_dataset.csv":     ["order_id", "product_id"],
+    "olist_order_payments_dataset.csv":  ["order_id", "payment_value"],
+    "olist_order_reviews_dataset.csv":   ["order_id"],
+    "olist_products_dataset.csv":        ["product_id"],
+    "olist_customers_dataset.csv":       ["customer_id"],
+    "olist_geolocation_dataset.csv":     [],
+}
+
+DEMAIS_ARQUIVOS = [
+    "data/raw/olist_order_items_dataset.csv",
+    "data/raw/olist_order_payments_dataset.csv",
+    "data/raw/olist_order_reviews_dataset.csv",
+    "data/raw/olist_products_dataset.csv",
+    "data/raw/olist_customers_dataset.csv",
+    "data/raw/olist_geolocation_dataset.csv",
+]
+
+
+def _converter_datas(df):
+    for col in COLUNAS_DATA:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+    return df
+
+
+def _limpar_arquivo(df, nome_arquivo, valid_order_ids=None):
+    df = _converter_datas(df)
+
+    if "review_score" in df.columns:
+        df["review_score"] = df["review_score"].fillna(df["review_score"].mean())
+
+    if "product_category_name" in df.columns:
+        df["product_category_name"] = df["product_category_name"].fillna("sem_categoria")
+
+    if valid_order_ids is not None and "order_id" in df.columns:
+        df = df[df["order_id"].isin(valid_order_ids)]
+
+    subset = DROPNA_SUBSET.get(nome_arquivo, [])
+    if subset:
+        df = df.dropna(subset=subset)
+
+    return df.drop_duplicates()
 
 
 def limpar_arquivos():
-    arquivos = [
-        "data/raw/olist_orders_dataset.csv",
-        "data/raw/olist_order_items_dataset.csv",
-        "data/raw/olist_order_payments_dataset.csv",
-        "data/raw/olist_order_reviews_dataset.csv",
-        "data/raw/olist_products_dataset.csv",
-        "data/raw/olist_customers_dataset.csv",
-        "data/raw/olist_geolocation_dataset.csv"
-    ]
-
-    colunas_data = [
-        "order_purchase_timestamp",
-        "order_approved_at",
-        "order_delivered_carrier_date",
-        "order_delivered_customer_date",
-        "order_estimated_delivery_date",
-        "shipping_limit_date"
-    ]
-
+    import os
     os.makedirs("data/processed", exist_ok=True)
 
-    for arquivo in arquivos:
+    # Etapa A: processar orders primeiro para extrair valid_order_ids
+    print("Lendo: data/raw/olist_orders_dataset.csv")
+    df_orders = pd.read_csv("data/raw/olist_orders_dataset.csv")
+    df_orders = _converter_datas(df_orders)
+    df_orders = df_orders[
+        ~df_orders["order_status"].isin(["canceled", "unavailable"])
+    ]
+    df_orders = df_orders.dropna(subset=["order_id", "customer_id"]).drop_duplicates()
+    valid_order_ids = set(df_orders["order_id"])
+    df_orders.to_csv("data/processed/olist_orders_dataset.csv", index=False)
+    print(f"Salvando: data/processed/olist_orders_dataset.csv ({len(df_orders)} linhas)")
+    print("----------------------------------")
+
+    # Etapa B: processar demais arquivos filtrando por valid_order_ids
+    for arquivo in DEMAIS_ARQUIVOS:
         print(f"Lendo: {arquivo}")
         df = pd.read_csv(arquivo)
-
-        # Converter datas
-        for coluna in colunas_data:
-            if coluna in df.columns:
-                df[coluna] = pd.to_datetime(df[coluna], errors="coerce")
-
-        # Tratar pedidos cancelados e indisponíveis
-        if "order_status" in df.columns:
-            df = df[
-                (df["order_status"] != "canceled") &
-                (df["order_status"] != "unavailable")
-                ]
-
-        # Tratar valores nulos específicos:
-        # pedidos sem avaliação são atribuídos o valor medio
-        if "review_score" in df.columns:
-            media = df["review_score"].mean()
-            df["review_score"] = df["review_score"].fillna(media)
-
-        # pedidos sem categoria são atribuídos valor "sem_categoria"
-        if "product_category_name" in df.columns:
-            df["product_category_name"] = df["product_category_name"].fillna("sem_categoria")
-
-        # Remover linhas com muitos valores nulos
-        df = df.dropna()
-
-        # Remover duplicados
-        df = df.drop_duplicates()
-
         nome_arquivo = arquivo.split("/")[-1]
-        print(f"Salvando: data/processed/{nome_arquivo}")
-        df.to_csv(f"data/processed/{nome_arquivo}", index=False)
+
+        ids = valid_order_ids if "order_id" in df.columns else None
+        df = _limpar_arquivo(df, nome_arquivo, valid_order_ids=ids)
+
+        destino = f"data/processed/{nome_arquivo}"
+        df.to_csv(destino, index=False)
+        print(f"Salvando: {destino} ({len(df)} linhas)")
         print("----------------------------------")
