@@ -45,7 +45,7 @@ def baixar_bases():
     print("\nDownload concluído.\n")
 
 
-def carregar_bases():
+def _carregar_bases():
     bases = {
         "orders": pd.read_csv(RAW_DIR / "olist_orders_dataset.csv"),
         "order_items": pd.read_csv(RAW_DIR / "olist_order_items_dataset.csv"),
@@ -58,7 +58,7 @@ def carregar_bases():
     return bases
 
 
-def exibir_resumo(bases):
+def _exibir_resumo(bases):
     print("\nArquivos carregados com sucesso!\n")
 
     print("Dimensão das tabelas:")
@@ -80,8 +80,8 @@ def exibir_resumo(bases):
 
 def main():
     baixar_bases()
-    bases = carregar_bases()
-    exibir_resumo(bases)
+    bases = _carregar_bases()
+    _exibir_resumo(bases)
 
 
 if __name__ == "__main__":
