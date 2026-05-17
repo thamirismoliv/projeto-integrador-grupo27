@@ -23,19 +23,55 @@ def carregar_dados():
 
 kpis, df_final = carregar_dados()
 
-with st.popover("⚙️ Administração"):
-    st.warning("Apaga todos os dados e baixa novamente do zero.")
-    if st.button("Resetar dados", type="primary"):
-        for f in Path("data/raw").glob("*.csv"):
-            f.unlink(missing_ok=True)
-        for f in Path("data/processed").glob("*.csv"):
-            f.unlink(missing_ok=True)
-        st.cache_data.clear()
-        st.rerun()
+col_title, col_admin = st.columns([0.94, 0.06], vertical_alignment="center")
+with col_title:
+    st.title("📊 Análise de E-commerce (Olist)")
+with col_admin:
+    with st.popover("⚙️", use_container_width=True):
+        st.warning("Apaga todos os dados e baixa novamente do zero.")
+        if st.button("Resetar dados", type="primary"):
+            for f in Path("data/raw").glob("*.csv"):
+                f.unlink(missing_ok=True)
+            for f in Path("data/processed").glob("*.csv"):
+                f.unlink(missing_ok=True)
+            st.cache_data.clear()
+            st.rerun()
 
-st.title("📊 Análise de E-commerce (Olist)")
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Introdução", "Visão Geral", "Vendas", "Logística", "Satisfação", "Geografia"])
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Visão Geral", "Vendas", "Logística", "Satisfação", "Geografia"])
+# ── Tab 0: Introdução ─────────────────────────────────────────────────────────
+with tab0:
+    st.header("Projeto Integrador — Ciência de Dados")
+    st.markdown("""
+**Tema:** Análise de desempenho de e-commerce e satisfação do cliente no Brasil
+
+O crescimento do e-commerce no Brasil trouxe desafios relacionados à logística, prazos de entrega e experiência do cliente.
+Este projeto analisa dados do Olist para identificar padrões, gargalos e oportunidades de melhoria, gerando insights sobre
+eficiência logística, desempenho de vendas e satisfação dos clientes.
+
+Fonte dos dados: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+— aproximadamente 100 mil pedidos realizados entre 2016 e 2018.
+""")
+
+    st.divider()
+
+    st.subheader("Equipe")
+    membros = [
+        ("Diego de Souza Brito", "https://github.com/diegosbrito"),
+        ("Ellen Cristina Santos do Prado", "https://github.com/pradoellen-design"),
+        ("Giovanna de Oliveira Mangueira", "https://github.com/giovanna27oliveira-lang"),
+        ("João Antônio Pereira Lemos Machado", "https://github.com/joaoaplm-svg"),
+        ("Lucas Sulzbach Rilho", "https://github.com/srJupi"),
+        ("Luiz Gustavo da Silva Pereira", "https://github.com/gugarosp"),
+        ("Thamiris Mota de Oliveira", "https://github.com/thamirismoliv"),
+    ]
+    cols = st.columns(3)
+    for i, (nome, url) in enumerate(membros):
+        cols[i % 3].markdown(f"[{nome}]({url})")
+
+    st.divider()
+
+    st.markdown("Para mais informações, acesse o [repositório do projeto](https://github.com/thamirismoliv/projeto-integrador-grupo27).")
 
 # ── Tab 1: Visão Geral ────────────────────────────────────────────────────────
 with tab1:
