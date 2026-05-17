@@ -1,11 +1,11 @@
-import streamlit as st
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
+import seaborn as sns
+import streamlit as st
+
 from src.extracao import baixar_bases
-from src.limpeza import limpar_arquivos
 from src.kpis import calcular_kpis
+from src.limpeza import limpar_arquivos
 from src.transformacao import transformar_dados
 
 st.set_page_config(page_title="Dashboard Olist", layout="wide")
@@ -15,8 +15,8 @@ st.set_page_config(page_title="Dashboard Olist", layout="wide")
 def carregar_dados():
     baixar_bases()
     limpar_arquivos()
-    kpis_dict = calcular_kpis()
     df_transformacao = transformar_dados()
+    kpis_dict = calcular_kpis()
     return kpis_dict, df_transformacao
 
 
@@ -53,12 +53,20 @@ with tab2:
         df_vendas = df_vendas[df_vendas['customer_state'].isin(estado_filtro)]
 
     st.subheader("Pedidos por Estado")
-    vendas_estado = df_vendas['customer_state'].value_counts()
+    vendas_estado = df_vendas.drop_duplicates(subset='order_id')['customer_state'].value_counts()
     fig2, ax2 = plt.subplots(figsize=(10, 4))
     sns.barplot(x=vendas_estado.index, y=vendas_estado.values, ax=ax2)
     ax2.set_xlabel("Estado")
     ax2.set_ylabel("Total de Pedidos")
     st.pyplot(fig2)
+
+    st.subheader("Faturamento por Estado")
+    faturamento_estado = df_vendas.groupby('customer_state')['valor_total'].sum().sort_values(ascending=False)
+    fig2b, ax2b = plt.subplots(figsize=(10, 4))
+    sns.barplot(x=faturamento_estado.index, y=faturamento_estado.values, ax=ax2b)
+    ax2b.set_xlabel("Estado")
+    ax2b.set_ylabel("Faturamento (R$)")
+    st.pyplot(fig2b)
 
     st.subheader("Top 10 Categorias Mais Vendidas")
     top10 = df_vendas['product_category_name'].value_counts().head(10).reset_index()

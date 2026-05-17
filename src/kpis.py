@@ -32,9 +32,6 @@ def calcular_kpis():
     df_pedidos['mes'] = df_pedidos['order_purchase_timestamp'].dt.to_period('M').astype(str)
     vendas_por_mes = df_pedidos.groupby('mes')['order_id'].count().sort_index()
 
-    # Distribuição de métodos de pagamento
-    distribuicao_pagamentos = df_pagamentos['payment_type'].value_counts()
-
     # Métricas logísticas
     df_entregues["tempo_entrega_dias"] = (
         df_entregues["order_delivered_customer_date"] - df_entregues["order_purchase_timestamp"]
@@ -92,9 +89,12 @@ def calcular_kpis():
         how='inner'
     )
 
-    # Scatter: dias de atraso × avaliação (apenas pedidos atrasados)
+    # Scatter: dias de atraso × avaliação (todos os pedidos entregues; negativo = antecipado)
+    df_entregues["dias_atraso"] = (
+        df_entregues["order_delivered_customer_date"] - df_entregues["order_estimated_delivery_date"]
+    ).dt.days
     scatter_atraso_avaliacao = pd.merge(
-        df_atrasados[["order_id", "dias_atraso"]],
+        df_entregues[["order_id", "dias_atraso"]],
         df_avaliacoes[["order_id", "review_score"]],
         on="order_id"
     )[["dias_atraso", "review_score"]]
@@ -126,8 +126,6 @@ def calcular_kpis():
         "vendas_por_estado": vendas_por_estado,
         "vendas_por_categoria": top_10_categorias,
         "vendas_por_mes": vendas_por_mes,
-        "distribuicao_pagamentos": distribuicao_pagamentos,
-
         # Logística
         "prazo_medio": prazo_medio,
         "perc_atraso": perc_atraso,
@@ -157,7 +155,6 @@ if __name__ == "__main__":
     print(f"\nTop 5 estados:\n{kpis['vendas_por_estado'].head(5).to_string()}")
     print(f"\nTop 10 categorias:\n{kpis['vendas_por_categoria'].to_string(index=False)}")
     print(f"\nVendas por mês (últimos 5):\n{kpis['vendas_por_mes'].tail(5).to_string()}")
-    print(f"\nMétodos de pagamento:\n{kpis['distribuicao_pagamentos'].to_string()}")
 
     print("\n--- MÉTRICAS LOGÍSTICAS ---")
     print(f"Prazo Médio de Entrega:      {kpis['prazo_medio']:.1f} dias")
