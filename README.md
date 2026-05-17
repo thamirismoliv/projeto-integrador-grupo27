@@ -127,7 +127,7 @@ A base foi escolhida por ser rica, realista e multidimensional, permitindo explo
 
 
 - **Satisfação do cliente**
-  - histograma
+  - gráfico de barras
     - distribuição das avaliações
   - scatter plot
     - atraso na entrega vs avaliação
@@ -164,7 +164,7 @@ A base foi escolhida por ser rica, realista e multidimensional, permitindo explo
 ## Tecnologias
 
 * Linguagem: **Python** <img src="https://raw.githubusercontent.com/bablubambal/All_logo_and_pictures/7c0ac2ceb9f9d24992ec393d11fa7337d2f92466/programming%20languages/python.svg" width="16">
-* Bibliotecas: **Pandas, NumPy, Matplotlib**
+* Bibliotecas: **Pandas, NumPy, Matplotlib, Seaborn, Plotly**
 * Visualização: **Streamlit**
 * Versionamento: **Git + GitHub**
 
@@ -175,8 +175,15 @@ A base foi escolhida por ser rica, realista e multidimensional, permitindo explo
 ```
 📦 projeto-integrador
  ┣ 📂 data
+ ┃ ┣ 📂 raw
+ ┃ ┗ 📂 processed
  ┣ 📂 src
- ┣ 📂 dashboard
+ ┃ ┣ 📄 extracao.py
+ ┃ ┣ 📄 limpeza.py
+ ┃ ┣ 📄 kpis.py
+ ┃ ┗ 📄 transformacao.py
+ ┣ 📄 app.py
+ ┣ 📄 requirements.txt
  ┗ 📄 README.md
 ```
 
