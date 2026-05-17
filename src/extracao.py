@@ -5,7 +5,6 @@ import requests
 import pandas as pd
 
 RAW_DIR = Path("data/raw")
-RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 URL = "https://www.kaggle.com/api/v1/datasets/download/olistbr/brazilian-ecommerce"
 
@@ -21,7 +20,7 @@ ARQUIVOS = [
 
 
 def baixar_bases():
-    # Verifica se todos os arquivos já existem
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     if all((RAW_DIR / f).exists() for f in ARQUIVOS):
         print("Todos os arquivos já existem. Pulando download.")
         return
