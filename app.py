@@ -52,25 +52,33 @@ with tab2:
     if estado_filtro:
         df_vendas = df_vendas[df_vendas['customer_state'].isin(estado_filtro)]
 
+    log_escala = st.checkbox("Escala logarítmica")
+
     st.subheader("Pedidos por Estado")
     vendas_estado = df_vendas.drop_duplicates(subset='order_id')['customer_state'].value_counts()
     fig2, ax2 = plt.subplots(figsize=(10, 4))
     sns.barplot(x=vendas_estado.index, y=vendas_estado.values, ax=ax2)
     ax2.set_xlabel("Estado")
     ax2.set_ylabel("Total de Pedidos")
+    if log_escala:
+        ax2.set_yscale('log')
     st.pyplot(fig2)
 
     st.subheader("Faturamento por Estado")
     faturamento_estado = df_vendas.groupby('customer_state')['valor_total'].sum().sort_values(ascending=False)
     fig2b, ax2b = plt.subplots(figsize=(10, 4))
     sns.barplot(x=faturamento_estado.index, y=faturamento_estado.values, ax=ax2b)
+    ax2b.yaxis.set_major_formatter('{x:,.0f}')
     ax2b.set_xlabel("Estado")
     ax2b.set_ylabel("Faturamento (R$)")
+    if log_escala:
+        ax2b.set_yscale('log')
     st.pyplot(fig2b)
 
     st.subheader("Top 10 Categorias Mais Vendidas")
     top10 = df_vendas['product_category_name'].value_counts().head(10).reset_index()
     top10.columns = ['categoria', 'total_vendas']
+    top10['categoria'] = top10['categoria'].str.replace('_', ' ').str.title()
     fig3, ax3 = plt.subplots(figsize=(10, 5))
     sns.barplot(data=top10, x='total_vendas', y='categoria', ax=ax3)
     ax3.set_xlabel("Total de Vendas")
@@ -82,6 +90,7 @@ with tab2:
     if estado_filtro:
         pag = pag[pag['customer_state'].isin(estado_filtro)]
     dist_pag = pag['payment_type'].value_counts()
+    dist_pag.index = dist_pag.index.str.replace('_', ' ').str.title()
     fig4, ax4 = plt.subplots(figsize=(6, 6))
     ax4.pie(
         dist_pag.values,
@@ -106,8 +115,10 @@ with tab3:
     st.pyplot(fig5)
 
     st.subheader("Distribuição do Tempo de Entrega")
+    p99 = kpis['tempo_entrega_series'].quantile(0.99)
     fig6, ax6 = plt.subplots(figsize=(8, 4))
     sns.histplot(kpis['tempo_entrega_series'], bins=40, kde=True, ax=ax6)
+    ax6.set_xlim(0, p99)
     ax6.set_xlabel("Dias")
     ax6.set_ylabel("Frequência")
     st.pyplot(fig6)
@@ -125,18 +136,26 @@ with tab4:
     ax7.set_ylabel("Quantidade")
     st.pyplot(fig7)
 
-    st.subheader("Atraso na Entrega vs Nota de Avaliação")
+    st.subheader("Atraso de Entrega por Nota de Avaliação")
     fig8, ax8 = plt.subplots(figsize=(8, 5))
-    sns.scatterplot(
+    sns.boxplot(
         data=kpis['scatter_atraso_avaliacao'],
-        x='dias_atraso',
-        y='review_score',
-        alpha=0.3,
+        x='review_score',
+        y='dias_atraso',
         ax=ax8,
     )
-    ax8.set_xlabel("Dias em Relação ao Prazo (negativo = antecipado)")
-    ax8.set_ylabel("Nota")
+    ax8.axhline(0, color='red', linestyle='--', linewidth=1)
+    ax8.set_ylim(-60, 60)
+    ax8.set_xlabel("Nota de Avaliação (estrelas)")
+    ax8.set_ylabel("Dias em Relação ao Prazo Estimado")
     st.pyplot(fig8)
+
+    st.subheader("Distribuição Geral do Atraso de Entrega")
+    fig8b, ax8b = plt.subplots(figsize=(8, 3))
+    sns.boxplot(x=kpis['scatter_atraso_avaliacao']['dias_atraso'], ax=ax8b)
+    ax8b.axvline(0, color='red', linestyle='--', linewidth=1)
+    ax8b.set_xlabel("Dias em Relação ao Prazo Estimado  (negativo = antecipado  |  positivo = atrasado)")
+    st.pyplot(fig8b)
 
 # ── Tab 5: Geografia ──────────────────────────────────────────────────────────
 with tab5:
