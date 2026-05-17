@@ -134,7 +134,7 @@ with tab4:
         alpha=0.3,
         ax=ax8,
     )
-    ax8.set_xlabel("Dias de Atraso")
+    ax8.set_xlabel("Dias em Relação ao Prazo (negativo = antecipado)")
     ax8.set_ylabel("Nota")
     st.pyplot(fig8)
 
