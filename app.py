@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import seaborn as sns
 import streamlit as st
+from pathlib import Path
 
 from src.extracao import baixar_bases
 from src.kpis import calcular_kpis
@@ -21,6 +22,16 @@ def carregar_dados():
 
 
 kpis, df_final = carregar_dados()
+
+with st.popover("⚙️ Administração"):
+    st.warning("Apaga todos os dados e baixa novamente do zero.")
+    if st.button("Resetar dados", type="primary"):
+        for f in Path("data/raw").glob("*.csv"):
+            f.unlink(missing_ok=True)
+        for f in Path("data/processed").glob("*.csv"):
+            f.unlink(missing_ok=True)
+        st.cache_data.clear()
+        st.rerun()
 
 st.title("📊 Análise de E-commerce (Olist)")
 
@@ -160,14 +171,15 @@ with tab4:
 # ── Tab 5: Geografia ──────────────────────────────────────────────────────────
 with tab5:
     st.subheader("Concentração de Pedidos por Localização")
-    fig9 = px.density_mapbox(
+    fig9 = px.density_map(
         kpis['localizacao_pedidos'],
         lat='lat',
         lon='lng',
         radius=4,
         center={"lat": -14.2, "lon": -51.9},
         zoom=3,
-        mapbox_style="open-street-map",
+        map_style="open-street-map",
         title="Mapa de Calor — Concentração de Pedidos",
     )
-    st.plotly_chart(fig9, use_container_width=True)
+    fig9.update_layout(height=800)
+    st.plotly_chart(fig9, width='stretch')
