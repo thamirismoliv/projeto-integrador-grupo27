@@ -73,6 +73,10 @@ def limpar_arquivos():
         print("Arquivos processados já existem. Pulando limpeza.")
         return
 
+    tabela_mestra = PROCESSED_DIR / "tabela_mestra.csv"
+    if tabela_mestra.exists():
+        tabela_mestra.unlink()
+
     import os
     os.makedirs("data/processed", exist_ok=True)
 
@@ -95,8 +99,7 @@ def limpar_arquivos():
         df = pd.read_csv(arquivo)
         nome_arquivo = arquivo.split("/")[-1]
 
-        ids = valid_order_ids if "order_id" in df.columns else None
-        df = _limpar_arquivo(df, nome_arquivo, valid_order_ids=ids)
+        df = _limpar_arquivo(df, nome_arquivo, valid_order_ids=valid_order_ids)
 
         destino = f"data/processed/{nome_arquivo}"
         df.to_csv(destino, index=False)
