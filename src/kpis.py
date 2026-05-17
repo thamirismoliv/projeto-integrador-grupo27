@@ -67,7 +67,7 @@ def calcular_kpis():
 
     # Métricas de satisfação
     nota_media = df_avaliacoes['review_score'].mean()
-    distribuicao_notas = df_avaliacoes['review_score'].value_counts().sort_index(ascending=False)
+    distribuicao_notas = df_avaliacoes['review_score'].value_counts().sort_index(ascending=True)
 
     df_atraso_avaliacao = pd.merge(
         df_entregues[["order_id", "atrasado"]],
@@ -83,6 +83,14 @@ def calcular_kpis():
 
     media_nota_no_prazo = df_atraso_avaliacao[~df_atraso_avaliacao["atrasado"]]["review_score"].mean()
     media_nota_atrasado = df_atraso_avaliacao[df_atraso_avaliacao["atrasado"]]["review_score"].mean()
+
+    # Pagamentos com estado para filtro no dashboard
+    pagamentos_detalhado = pd.merge(
+        df_pagamentos[['order_id', 'payment_type']],
+        df_pedidos_clientes[['order_id', 'customer_state']],
+        on='order_id',
+        how='inner'
+    )
 
     # Scatter: dias de atraso × avaliação (apenas pedidos atrasados)
     scatter_atraso_avaliacao = pd.merge(
@@ -112,6 +120,7 @@ def calcular_kpis():
     return {
         # Vendas
         "faturamento_total": faturamento_total,
+        "pagamentos_detalhado": pagamentos_detalhado,
         "total_pedidos": total_pedidos,
         "ticket_medio": ticket_medio,
         "vendas_por_estado": vendas_por_estado,
