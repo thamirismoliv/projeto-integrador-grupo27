@@ -70,10 +70,14 @@ with tab2:
     st.pyplot(fig3)
 
     st.subheader("Distribuição dos Métodos de Pagamento")
+    pag = kpis['pagamentos_detalhado']
+    if estado_filtro:
+        pag = pag[pag['customer_state'].isin(estado_filtro)]
+    dist_pag = pag['payment_type'].value_counts()
     fig4, ax4 = plt.subplots(figsize=(6, 6))
     ax4.pie(
-        kpis['distribuicao_pagamentos'].values,
-        labels=kpis['distribuicao_pagamentos'].index,
+        dist_pag.values,
+        labels=dist_pag.index,
         autopct='%1.1f%%',
         wedgeprops=dict(width=0.5),
     )
@@ -81,6 +85,11 @@ with tab2:
 
 # ── Tab 3: Logística ──────────────────────────────────────────────────────────
 with tab3:
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Prazo Médio de Entrega", f"{kpis['prazo_medio']:.1f} dias")
+    col2.metric("Pedidos Atrasados", f"{kpis['perc_atraso']:.1f}%")
+    col3.metric("Tempo Médio de Atraso", f"{kpis['tempo_medio_atraso']:.1f} dias")
+
     st.subheader("Prazo Médio de Entrega por Estado")
     fig5, ax5 = plt.subplots(figsize=(8, 6))
     sns.barplot(data=kpis['prazo_por_estado'], x='prazo_medio_dias', y='estado', ax=ax5)
@@ -97,6 +106,10 @@ with tab3:
 
 # ── Tab 4: Satisfação ─────────────────────────────────────────────────────────
 with tab4:
+    col1, col2 = st.columns(2)
+    col1.metric("Nota Média (No Prazo)", f"{kpis['media_nota_no_prazo']:.2f} ⭐")
+    col2.metric("Nota Média (Atrasados)", f"{kpis['media_nota_atrasado']:.2f} ⭐")
+
     st.subheader("Distribuição das Avaliações")
     fig7, ax7 = plt.subplots(figsize=(6, 4))
     sns.barplot(x=kpis['distribuicao_notas'].index.astype(str), y=kpis['distribuicao_notas'].values, ax=ax7)
