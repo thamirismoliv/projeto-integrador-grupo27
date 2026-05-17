@@ -1,7 +1,14 @@
+from pathlib import Path
 import pandas as pd
+
+TABELA_MESTRA = Path("data/processed/tabela_mestra.csv")
 
 
 def transformar_dados():
+    if TABELA_MESTRA.exists():
+        print("Tabela mestra já existe. Carregando do disco.")
+        return pd.read_csv(TABELA_MESTRA)
+
     print("Iniciando transformação dos dados...")
 
     orders = pd.read_csv('data/processed/olist_orders_dataset.csv')

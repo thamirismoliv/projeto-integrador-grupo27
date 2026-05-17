@@ -1,4 +1,17 @@
+from pathlib import Path
 import pandas as pd
+
+PROCESSED_DIR = Path("data/processed")
+
+PROCESSED_FILES = [
+    "olist_orders_dataset.csv",
+    "olist_order_items_dataset.csv",
+    "olist_order_payments_dataset.csv",
+    "olist_order_reviews_dataset.csv",
+    "olist_products_dataset.csv",
+    "olist_customers_dataset.csv",
+    "olist_geolocation_dataset.csv",
+]
 
 COLUNAS_DATA = [
     "order_purchase_timestamp",
@@ -56,6 +69,10 @@ def _limpar_arquivo(df, nome_arquivo, valid_order_ids=None):
 
 
 def limpar_arquivos():
+    if all((PROCESSED_DIR / f).exists() for f in PROCESSED_FILES):
+        print("Arquivos processados já existem. Pulando limpeza.")
+        return
+
     import os
     os.makedirs("data/processed", exist_ok=True)
 
