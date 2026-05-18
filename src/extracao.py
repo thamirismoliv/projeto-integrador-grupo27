@@ -5,7 +5,6 @@ import requests
 import pandas as pd
 
 RAW_DIR = Path("data/raw")
-RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 URL = "https://www.kaggle.com/api/v1/datasets/download/olistbr/brazilian-ecommerce"
 
@@ -21,7 +20,7 @@ ARQUIVOS = [
 
 
 def baixar_bases():
-    # Verifica se todos os arquivos já existem
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     if all((RAW_DIR / f).exists() for f in ARQUIVOS):
         print("Todos os arquivos já existem. Pulando download.")
         return
@@ -45,7 +44,7 @@ def baixar_bases():
     print("\nDownload concluído.\n")
 
 
-def carregar_bases():
+def _carregar_bases():
     bases = {
         "orders": pd.read_csv(RAW_DIR / "olist_orders_dataset.csv"),
         "order_items": pd.read_csv(RAW_DIR / "olist_order_items_dataset.csv"),
@@ -58,7 +57,7 @@ def carregar_bases():
     return bases
 
 
-def exibir_resumo(bases):
+def _exibir_resumo(bases):
     print("\nArquivos carregados com sucesso!\n")
 
     print("Dimensão das tabelas:")
@@ -80,8 +79,8 @@ def exibir_resumo(bases):
 
 def main():
     baixar_bases()
-    bases = carregar_bases()
-    exibir_resumo(bases)
+    bases = _carregar_bases()
+    _exibir_resumo(bases)
 
 
 if __name__ == "__main__":
