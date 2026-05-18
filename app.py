@@ -109,7 +109,7 @@ with tab2:
             vendas_estado = df_vendas.drop_duplicates(subset='order_id')['customer_state'].value_counts()
             cores2 = ['#e07b39' if i < 5 else '#c0c0c0' for i in range(len(vendas_estado))]
             fig2, ax2 = plt.subplots(figsize=(10, 4))
-            sns.barplot(x=vendas_estado.index, y=vendas_estado.values, palette=cores2, ax=ax2)
+            sns.barplot(x=vendas_estado.index, y=vendas_estado.values, hue=vendas_estado.index, palette=cores2, legend=False, ax=ax2)
             ax2.set_xlabel("Estado")
             ax2.set_ylabel("Total de Pedidos")
             if log_escala:
@@ -120,7 +120,7 @@ with tab2:
             faturamento_estado = df_vendas.groupby('customer_state')['valor_total'].sum().sort_values(ascending=False)
             cores2b = ['#e07b39' if i < 5 else '#c0c0c0' for i in range(len(faturamento_estado))]
             fig2b, ax2b = plt.subplots(figsize=(10, 4))
-            sns.barplot(x=faturamento_estado.index, y=faturamento_estado.values, palette=cores2b, ax=ax2b)
+            sns.barplot(x=faturamento_estado.index, y=faturamento_estado.values, hue=faturamento_estado.index, palette=cores2b, legend=False, ax=ax2b)
             ax2b.yaxis.set_major_formatter('{x:,.0f}')
             ax2b.set_xlabel("Estado")
             ax2b.set_ylabel("Faturamento (R$)")
@@ -164,7 +164,7 @@ with tab3:
         n5 = len(kpis['prazo_por_estado'])
         palette5 = sns.dark_palette("steelblue", n_colors=n5)
         fig5, ax5 = plt.subplots(figsize=(8, 6))
-        sns.barplot(data=kpis['prazo_por_estado'], x='prazo_medio_dias', y='estado', palette=palette5, ax=ax5)
+        sns.barplot(data=kpis['prazo_por_estado'], x='prazo_medio_dias', y='estado', hue='estado', palette=palette5, legend=False, ax=ax5)
         ax5.set_xlabel("Prazo Médio (dias)")
         ax5.set_ylabel("Estado")
         st.pyplot(fig5)
