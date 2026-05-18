@@ -92,60 +92,66 @@ with tab1:
 
 # ── Tab 2: Vendas ─────────────────────────────────────────────────────────────
 with tab2:
-    todos_estados = sorted(kpis['vendas_por_estado'].index.tolist())
-    estado_filtro = st.multiselect("Filtrar por Estado", todos_estados)
+    col_filtros, col_graficos = st.columns([0.15, 0.85])
+
+    with col_filtros:
+        todos_estados = sorted(kpis['vendas_por_estado'].index.tolist())
+        estado_filtro = st.multiselect("Filtrar por Estado", todos_estados)
+        log_escala = st.checkbox("Escala logarítmica")
+        st.caption("Aplica aos gráficos de Pedidos e Faturamento por Estado")
 
     df_vendas = df_final.copy()
     if estado_filtro:
         df_vendas = df_vendas[df_vendas['customer_state'].isin(estado_filtro)]
 
-    log_escala = st.checkbox("Escala logarítmica")
+    with col_graficos:
+        with st.expander("Pedidos por Estado", expanded=False):
+            vendas_estado = df_vendas.drop_duplicates(subset='order_id')['customer_state'].value_counts()
+            cores2 = ['#e07b39' if i < 5 else '#c0c0c0' for i in range(len(vendas_estado))]
+            fig2, ax2 = plt.subplots(figsize=(10, 4))
+            sns.barplot(x=vendas_estado.index, y=vendas_estado.values, palette=cores2, ax=ax2)
+            ax2.set_xlabel("Estado")
+            ax2.set_ylabel("Total de Pedidos")
+            if log_escala:
+                ax2.set_yscale('log')
+            st.pyplot(fig2)
 
-    with st.expander("Pedidos por Estado", expanded=False):
-        vendas_estado = df_vendas.drop_duplicates(subset='order_id')['customer_state'].value_counts()
-        fig2, ax2 = plt.subplots(figsize=(10, 4))
-        sns.barplot(x=vendas_estado.index, y=vendas_estado.values, ax=ax2)
-        ax2.set_xlabel("Estado")
-        ax2.set_ylabel("Total de Pedidos")
-        if log_escala:
-            ax2.set_yscale('log')
-        st.pyplot(fig2)
+        with st.expander("Faturamento por Estado", expanded=False):
+            faturamento_estado = df_vendas.groupby('customer_state')['valor_total'].sum().sort_values(ascending=False)
+            cores2b = ['#e07b39' if i < 5 else '#c0c0c0' for i in range(len(faturamento_estado))]
+            fig2b, ax2b = plt.subplots(figsize=(10, 4))
+            sns.barplot(x=faturamento_estado.index, y=faturamento_estado.values, palette=cores2b, ax=ax2b)
+            ax2b.yaxis.set_major_formatter('{x:,.0f}')
+            ax2b.set_xlabel("Estado")
+            ax2b.set_ylabel("Faturamento (R$)")
+            if log_escala:
+                ax2b.set_yscale('log')
+            st.pyplot(fig2b)
 
-    with st.expander("Faturamento por Estado", expanded=False):
-        faturamento_estado = df_vendas.groupby('customer_state')['valor_total'].sum().sort_values(ascending=False)
-        fig2b, ax2b = plt.subplots(figsize=(10, 4))
-        sns.barplot(x=faturamento_estado.index, y=faturamento_estado.values, ax=ax2b)
-        ax2b.yaxis.set_major_formatter('{x:,.0f}')
-        ax2b.set_xlabel("Estado")
-        ax2b.set_ylabel("Faturamento (R$)")
-        if log_escala:
-            ax2b.set_yscale('log')
-        st.pyplot(fig2b)
+        with st.expander("Top 10 Categorias Mais Vendidas", expanded=False):
+            top10 = df_vendas['product_category_name'].value_counts().head(10).reset_index()
+            top10.columns = ['categoria', 'total_vendas']
+            top10['categoria'] = top10['categoria'].str.replace('_', ' ').str.title()
+            fig3, ax3 = plt.subplots(figsize=(10, 5))
+            sns.barplot(data=top10, x='total_vendas', y='categoria', hue='categoria', legend=False, ax=ax3)
+            ax3.set_xlabel("Total de Vendas")
+            ax3.set_ylabel("Categoria")
+            st.pyplot(fig3)
 
-    with st.expander("Top 10 Categorias Mais Vendidas", expanded=False):
-        top10 = df_vendas['product_category_name'].value_counts().head(10).reset_index()
-        top10.columns = ['categoria', 'total_vendas']
-        top10['categoria'] = top10['categoria'].str.replace('_', ' ').str.title()
-        fig3, ax3 = plt.subplots(figsize=(10, 5))
-        sns.barplot(data=top10, x='total_vendas', y='categoria', ax=ax3)
-        ax3.set_xlabel("Total de Vendas")
-        ax3.set_ylabel("Categoria")
-        st.pyplot(fig3)
-
-    with st.expander("Distribuição dos Métodos de Pagamento", expanded=False):
-        pag = kpis['pagamentos_detalhado']
-        if estado_filtro:
-            pag = pag[pag['customer_state'].isin(estado_filtro)]
-        dist_pag = pag['payment_type'].value_counts()
-        dist_pag.index = dist_pag.index.str.replace('_', ' ').str.title()
-        fig4, ax4 = plt.subplots(figsize=(6, 6))
-        ax4.pie(
-            dist_pag.values,
-            labels=dist_pag.index,
-            autopct='%1.1f%%',
-            wedgeprops=dict(width=0.5),
-        )
-        st.pyplot(fig4)
+        with st.expander("Distribuição dos Métodos de Pagamento", expanded=False):
+            pag = kpis['pagamentos_detalhado']
+            if estado_filtro:
+                pag = pag[pag['customer_state'].isin(estado_filtro)]
+            dist_pag = pag['payment_type'].value_counts()
+            dist_pag.index = dist_pag.index.str.replace('_', ' ').str.title()
+            fig4, ax4 = plt.subplots(figsize=(6, 6))
+            ax4.pie(
+                dist_pag.values,
+                labels=dist_pag.index,
+                autopct='%1.1f%%',
+                wedgeprops=dict(width=0.5),
+            )
+            st.pyplot(fig4)
 
 # ── Tab 3: Logística ──────────────────────────────────────────────────────────
 with tab3:
@@ -155,8 +161,10 @@ with tab3:
     col3.metric("Tempo Médio de Atraso", f"{kpis['tempo_medio_atraso']:.1f} dias", help="Média de dias de atraso considerando apenas os pedidos que atrasaram.")
 
     with st.expander("Prazo Médio de Entrega por Estado", expanded=False):
+        n5 = len(kpis['prazo_por_estado'])
+        palette5 = sns.dark_palette("steelblue", n_colors=n5)
         fig5, ax5 = plt.subplots(figsize=(8, 6))
-        sns.barplot(data=kpis['prazo_por_estado'], x='prazo_medio_dias', y='estado', ax=ax5)
+        sns.barplot(data=kpis['prazo_por_estado'], x='prazo_medio_dias', y='estado', palette=palette5, ax=ax5)
         ax5.set_xlabel("Prazo Médio (dias)")
         ax5.set_ylabel("Estado")
         st.pyplot(fig5)
@@ -170,6 +178,13 @@ with tab3:
         ax6.set_ylabel("Frequência")
         st.pyplot(fig6)
 
+    with st.expander("Distribuição Geral do Atraso de Entrega", expanded=False):
+        fig8b, ax8b = plt.subplots(figsize=(8, 3))
+        sns.boxplot(x=kpis['scatter_atraso_avaliacao']['dias_atraso'], ax=ax8b)
+        ax8b.axvline(0, color='red', linestyle='--', linewidth=1)
+        ax8b.set_xlabel("Dias em Relação ao Prazo Estimado\n(negativo = antecipado  |  positivo = atrasado)")
+        st.pyplot(fig8b)
+
 # ── Tab 4: Satisfação ─────────────────────────────────────────────────────────
 with tab4:
     col1, col2 = st.columns(2)
@@ -178,7 +193,7 @@ with tab4:
 
     with st.expander("Distribuição das Avaliações", expanded=False):
         fig7, ax7 = plt.subplots(figsize=(6, 4))
-        sns.barplot(x=kpis['distribuicao_notas'].index.astype(str), y=kpis['distribuicao_notas'].values, ax=ax7)
+        sns.barplot(x=kpis['distribuicao_notas'].index.astype(str), y=kpis['distribuicao_notas'].values, hue=kpis['distribuicao_notas'].index.astype(str), palette="YlGn", legend=False, ax=ax7)
         ax7.set_xlabel("Nota")
         ax7.set_ylabel("Quantidade")
         st.pyplot(fig7)
@@ -196,13 +211,6 @@ with tab4:
         ax8.set_xlabel("Nota de Avaliação (estrelas)")
         ax8.set_ylabel("Dias em Relação ao Prazo Estimado")
         st.pyplot(fig8)
-
-    with st.expander("Distribuição Geral do Atraso de Entrega", expanded=False):
-        fig8b, ax8b = plt.subplots(figsize=(8, 3))
-        sns.boxplot(x=kpis['scatter_atraso_avaliacao']['dias_atraso'], ax=ax8b)
-        ax8b.axvline(0, color='red', linestyle='--', linewidth=1)
-        ax8b.set_xlabel("Dias em Relação ao Prazo Estimado  (negativo = antecipado  |  positivo = atrasado)")
-        st.pyplot(fig8b)
 
 # ── Tab 5: Geografia ──────────────────────────────────────────────────────────
 with tab5:
